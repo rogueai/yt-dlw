@@ -1,4 +1,5 @@
 yt-dlp == 2023.7.6
 uvicorn[standard]
 fastapi
+pydantic
 celery[redis]

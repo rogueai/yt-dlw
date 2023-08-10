@@ -10,6 +10,12 @@ ydl = YoutubeDL()
 
 
 @celery.task
-def download_task(video_id):
-    ydl.download('https://www.youtube.com/watch?v=' + video_id)
-    return f"Task started for video: {video_id}"
+def download_task(video_url):
+    ydl.download(video_url)
+    return f"[download] task started: {video_url}"
+
+
+@celery.task
+def info_task(video_url):
+    info = ydl.extract_info(video_url, download=False)
+    return info

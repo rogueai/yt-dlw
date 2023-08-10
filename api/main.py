@@ -1,18 +1,25 @@
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import FastAPI
+from pydantic import BaseModel
 
-from tasks import celery, download_task
+from tasks import download_task, info_task
 
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+class Video(BaseModel):
+    url: str
 
 
-# URL = 'https://www.youtube.com/watch?v=BaW_jenozKc'
-@app.get("/download/{video_id}")
-async def download(video_id: str, background_tasks: BackgroundTasks):
+@app.post("/download/")
+async def download(video: Video):
     # background_tasks.add_task(download_task, video_id)
-    download_task.delay(video_id)
+    download_task.delay(video.url)
     return {"message": "Video download queued"}
+
+
+@app.get("/info/")
+async def download(url: str):
+    # background_tasks.add_task(download_task, video_id)
+    res = info_task.delay(url)
+    info = res.get()
+    return info
