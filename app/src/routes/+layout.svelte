@@ -5,7 +5,7 @@
     import '@skeletonlabs/skeleton/styles/skeleton.css';
     // Most of your app wide CSS should be put in this file
     import '../app.postcss';
-    import {AppShell, AppBar, Drawer, drawerStore} from '@skeletonlabs/skeleton';
+    import {AppBar, AppShell, Drawer, drawerStore} from '@skeletonlabs/skeleton';
     import Navigation from "../lib/Navigation/Navigation.svelte";
 
     function drawerOpen() {
@@ -51,5 +51,5 @@
         <Navigation/>
     </svelte:fragment>
     <!-- Page Route Content -->
-    <slot/>
+    <slot />
 </AppShell>
