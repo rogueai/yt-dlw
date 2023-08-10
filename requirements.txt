@@ -1,3 +1,4 @@
 yt-dlp == 2023.7.6
 uvicorn[standard]
 fastapi
+celery[redis]
