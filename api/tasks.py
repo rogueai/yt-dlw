@@ -9,8 +9,14 @@ celery = Celery(
 ydl = YoutubeDL()
 
 
+def progress_hook(s):
+    print(s)
+
+
 @celery.task
 def download_task(video_url):
+    ydl.add_progress_hook(progress_hook)
+    ydl.add_postprocessor_hook(progress_hook)
     ydl.download(video_url)
     return f"[download] task started: {video_url}"
 

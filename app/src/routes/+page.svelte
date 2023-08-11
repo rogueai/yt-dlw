@@ -1,5 +1,20 @@
 <script>
     import {enhance} from '$app/forms';
+
+    import {onMount} from 'svelte';
+
+    onMount(() => {
+
+        const socket = new WebSocket('ws://localhost:8000/ws');
+        socket.addEventListener('open', function (event) {
+            console.log("It's open");
+        });
+
+        socket.addEventListener('message', function (event) {
+            console.log(event.data);
+        });
+    })
+
 </script>
 
 <div class=" flex justify-center page-container">
