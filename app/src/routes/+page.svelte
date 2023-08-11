@@ -3,15 +3,14 @@
 
     import {onMount} from 'svelte';
 
+    import {io} from "socket.io-client";
+
     onMount(() => {
-
-        const socket = new WebSocket('ws://localhost:8000/ws');
-        socket.addEventListener('open', function (event) {
-            console.log("It's open");
+        const socket = io('ws://localhost:8000/', {
+            path: '/ws/socket.io'
         });
-
-        socket.addEventListener('message', function (event) {
-            console.log(event.data);
+        socket.onAny((event) => {
+            console.log(event);
         });
     })
 
