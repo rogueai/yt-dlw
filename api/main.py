@@ -19,8 +19,8 @@ class Video(BaseModel):
     url: str
 
 
-@sio.on('download_progress')
-async def download_progress(sid, data):
+@sio.on('progress')
+async def progress(sid, data):
     """
     Celery tasks send download progress information via WebSocket
     Each event is broadcasted to all subscribers, except to the caller sid
@@ -35,7 +35,7 @@ async def download_progress(sid, data):
 
 @app.post("/download/")
 async def download(video: Video):
-    download_task.delay(video.url)
+    res = download_task.delay(video.url)
     return {"message": "Video download queued"}
 
 

@@ -1,43 +1,61 @@
 import socketio
 from celery import Celery
+from celery import Task
 from yt_dlp import YoutubeDL
+
+
+class YtDlpTask(Task):
+    """
+    Task handling yt-dlp operations.
+    Question arises whether there should be a yt-dlp per task, or a global one. It all depends on how yt-dlp manages
+    concurrent operations. For now it seems safer to rely on Celery for concurrency, and assume yt-dlp has none baked
+    in.
+    """
+    _ydl = None
+    _sio = None
+
+    def __init__(self):
+        self._ydl = YoutubeDL()
+        self.ydl.add_progress_hook(self.progress_hook)
+        self.ydl.add_postprocessor_hook(self.progress_hook)
+        self._sio = socketio.Client(reconnection_attempts=10, reconnection_delay=3, reconnection_delay_max=30)
+
+    def progress_hook(self, info: dict):
+        if info['info_dict']['__real_download']:
+            message = {
+                "status": info['status']
+            }
+            if "_percent_str" in info:
+                message["progress"] = info['_percent_str']
+            self.sio.emit("progress", message)
+
+    @property
+    def ydl(self):
+        return self._ydl
+
+    @property
+    def sio(self):
+        if not self._sio.connected:
+            self._sio.connect(
+                "http://localhost:8000/", socketio_path="/ws/socket.io"
+            )
+        return self._sio
+
 
 celery = Celery(
     "tasks",
     broker="redis://localhost:6379/0",
     backend="redis://localhost:6379/0"
 )
-ydl = YoutubeDL()
-
-sio = socketio.Client(reconnection_attempts=10, reconnection_delay=3, reconnection_delay_max=30)
 
 
-def progress_hook(info):
-    check_connection()
-    sio.emit("download_progress", {
-        "status": info['status'],
-        "progress": info['_percent_str'],
-    })
-
-
-ydl.add_progress_hook(progress_hook)
-# ydl.add_postprocessor_hook(progress_hook)
-
-
-def check_connection():
-    if not sio.connected:
-        sio.connect(
-            "http://localhost:8000/", socketio_path="/ws/socket.io"
-        )
-
-
-@celery.task(bind=True)
+@celery.task(base=YtDlpTask, bind=True)
 def download_task(self, video_url):
-    ydl.download(video_url)
+    self.ydl.download(video_url)
     return f"[download] task started: {video_url}"
 
 
-@celery.task
-def info_task(video_url):
-    info = ydl.extract_info(video_url, download=False)
+@celery.task(base=YtDlpTask, bind=True)
+def info_task(self, video_url):
+    info = self.ydl.extract_info(video_url, download=False)
     return info
