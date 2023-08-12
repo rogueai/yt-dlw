@@ -1,0 +1,11 @@
+FROM python:3.11-alpine
+
+COPY ./requirements.txt /server/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /server/requirements.txt
+
+ADD api/ /server/api/
+
+WORKDIR /server/api
+
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]

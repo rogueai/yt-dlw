@@ -3,6 +3,8 @@ from celery import Celery
 from celery import Task
 from yt_dlp import YoutubeDL
 
+import config
+
 
 class YtDlpTask(Task):
     """
@@ -21,13 +23,15 @@ class YtDlpTask(Task):
         self._sio = socketio.Client(reconnection_attempts=10, reconnection_delay=3, reconnection_delay_max=30)
 
     def progress_hook(self, info: dict):
-        if info['info_dict']['__real_download']:
-            message = {
-                "status": info['status']
-            }
-            if "_percent_str" in info:
-                message["progress"] = info['_percent_str']
-            self.sio.emit("progress", message)
+        if "info_dict" in info:
+            if "__real_download" in info['info_dict']:
+                if info['info_dict']['__real_download'] is True:
+                    message = {
+                        "status": info['status']
+                    }
+                    if "_percent_str" in info:
+                        message["progress"] = info['_percent_str']
+                    self.sio.emit("progress", message)
 
     @property
     def ydl(self):
@@ -36,16 +40,14 @@ class YtDlpTask(Task):
     @property
     def sio(self):
         if not self._sio.connected:
-            self._sio.connect(
-                "http://localhost:8000/", socketio_path="/ws/socket.io"
-            )
+            self._sio.connect(config.API_URL, socketio_path="/ws/socket.io")
         return self._sio
 
 
 celery = Celery(
     "tasks",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0"
+    broker=config.CELERY_BROKER,
+    backend=config.CELERY_BACKEND
 )
 
 

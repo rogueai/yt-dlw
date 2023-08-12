@@ -6,7 +6,7 @@ app/build
 app/.svelte-kit
 app/package
 .env
-.env.*
+app/.env.local
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

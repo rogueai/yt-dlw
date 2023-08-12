@@ -4,4 +4,38 @@ services:
   redis:
     image: docker.io/redis:7.0.12-alpine
     ports:
-    - "6379:6379"
+      - "6379:6379"
+
+  api:
+    build:
+      context: "."
+      dockerfile: ./docker/Dockerfile-api
+    image: rogueai/yt-dlw-api:latest
+    environment: &env
+      CELERY_BROKER: "redis://redis:6379/0"
+      CELERY_BACKEND: "redis://redis:6379/0"
+      API_URL: "http://api:8000"
+    ports:
+      - "8000:8000"
+
+  worker:
+    image: rogueai/yt-dlw-api:latest
+    command: celery -A tasks worker --loglevel=INFO --concurrency=1
+    environment:
+      <<: *env
+    depends_on:
+      - "redis"
+      - "api"
+
+  app:
+    build:
+      context: "."
+      dockerfile: ./docker/Dockerfile-app
+    image: rogueai/yt-dlw-app:latest
+    environment:
+      PORT: 3000
+      ORIGIN: "http://localhost:3000"
+      PUBLIC_API_URL: "http://api:8000"
+      PUBLIC_API_WS: "ws://localhost:8000"
+    ports:
+      - "3000:3000"

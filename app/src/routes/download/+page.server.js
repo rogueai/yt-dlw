@@ -1,10 +1,11 @@
+import { env } from '$env/dynamic/public';
+
 /** @type {import('./$types').Actions} */
 export const actions = {
     default: async (event) => {
         const data = await event.request.formData();
         const videoUrl = data.get('videoUrl');
-
-        await fetch('http://localhost:8000/download/', {
+        await fetch(`${env.PUBLIC_API_URL}/download/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
