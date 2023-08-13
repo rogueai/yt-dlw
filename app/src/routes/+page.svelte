@@ -5,7 +5,9 @@
 
     import {io} from "socket.io-client";
 
-    import { env } from '$env/dynamic/public';
+    import {env} from '$env/dynamic/public';
+    import Item from "$lib/Item/Item.svelte";
+
     onMount(() => {
         const socket = io(`${env.PUBLIC_API_WS}/client`, {
             path: '/ws/socket.io'
@@ -14,7 +16,7 @@
             console.log(event);
         });
     })
-
+    let items = ["test", "test"];
 </script>
 
 <div class=" flex justify-center page-container">
@@ -22,12 +24,14 @@
         <form action="/download" method="POST" use:enhance>
             <div class="flex justify-center space-x-2">
                 <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input type="search" placeholder="Video Url" name="videoUrl"
-                           value="https://www.youtube.com/watch?v=BaW_jenozKc"/>
+                    <input type="search" placeholder="Video Url" name="videoUrl"/>
                     <button class="variant-filled-secondary">Download</button>
                 </div>
             </div>
         </form>
+        {#each items as item}
+            <Item/>
+        {/each}
     </div>
 </div>
 
