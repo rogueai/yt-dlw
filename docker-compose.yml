@@ -15,12 +15,20 @@ services:
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_BACKEND: "redis://redis:6379/0"
       API_URL: "http://api:8000"
+      # configuration: pydantic-settings
+      YDL_HOME": "/completed"
+    volumes:
+      - "./completed:/completed"
     ports:
       - "8000:8000"
 
   worker:
     image: rogueai/yt-dlw-api:latest
-    command: celery -A tasks worker --loglevel=INFO --concurrency=1
+    command: >- 
+      celery -A tasks worker 
+        --loglevel=INFO 
+        --concurrency=1
+        --queues=downloads,info
     environment:
       <<: *env
     depends_on:

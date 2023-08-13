@@ -7,7 +7,7 @@
 
     import { env } from '$env/dynamic/public';
     onMount(() => {
-        const socket = io(`${env.PUBLIC_API_WS}`, {
+        const socket = io(`${env.PUBLIC_API_WS}/client`, {
             path: '/ws/socket.io'
         });
         socket.onAny((event) => {

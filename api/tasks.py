@@ -31,7 +31,7 @@ class YtDlpTask(Task):
                     }
                     if "_percent_str" in info:
                         message["progress"] = info['_percent_str']
-                    self.sio.emit("progress", message)
+                    self.sio.emit("progress", message, namespace="/server")
 
     @property
     def ydl(self):
@@ -40,24 +40,35 @@ class YtDlpTask(Task):
     @property
     def sio(self):
         if not self._sio.connected:
-            self._sio.connect(config.API_URL, socketio_path="/ws/socket.io")
+            self._sio.connect(config.API_URL, socketio_path="/ws/socket.io", namespaces="/server")
         return self._sio
 
 
 celery = Celery(
     "tasks",
     broker=config.CELERY_BROKER,
-    backend=config.CELERY_BACKEND
+    backend=config.CELERY_BACKEND,
 )
+celery.conf.update(task_routes={
+    'tasks.download_task': {
+        'queue': 'downloads',
+    },
+    'tasks.info_task': {
+        'queue': 'info',
+    },
+})
 
 
 @celery.task(base=YtDlpTask, bind=True)
-def download_task(self, video_url):
+def download_task(self: YtDlpTask, ydl_home, video_url):
+    self.ydl.params["paths"] = {
+        'home': ydl_home
+    }
     self.ydl.download(video_url)
     return f"[download] task started: {video_url}"
 
 
 @celery.task(base=YtDlpTask, bind=True)
-def info_task(self, video_url):
+def info_task(self: YtDlpTask, video_url):
     info = self.ydl.extract_info(video_url, download=False)
     return info
