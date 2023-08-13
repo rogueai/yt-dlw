@@ -2,10 +2,10 @@
 
 Lightweight web interface for yt-dlp.
 
-It's not _that_ lightweight, but the projects tries to keep hardware constraints to the bare minimum,
+It's not _that_ lightweight, but the project tries to keep hardware constraints to the bare minimum,
 while keeping a certain degree of functionality.
 
-Based on initial rough estimates, on idle we're looking at something like this for RAM usage:
+Based on initial rough estimates from `docker stats`, on idle we're looking at something like this for RAM usage:
 ```
 - celery worker: 90MB
 - redis:         20MB
