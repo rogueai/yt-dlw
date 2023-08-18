@@ -1,0 +1,14 @@
+/target
+.idea
+.vscode
+.DS_Store
+app/node_modules
+app/build
+app/.svelte-kit
+app/package
+.env
+app/.env.local
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+/venv
