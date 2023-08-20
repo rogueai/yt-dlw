@@ -7,6 +7,7 @@ edition = "2021"
 anyhow = "1"
 serde = "1"
 actix = "0.13.0"
+actix-codec = "0.5.1"
 actix-web = "4"
 actix-web-actors = "4"
 apalis = { version = "0.4", features = ["redis"] }
@@ -16,9 +17,6 @@ futures = "0.3"
 futures-util = "0.3.0"
 serde_json = "1"
 log = "0.4"
-maturin = "1.2.2"
-pyo3-asyncio = { version = "0.19.0", features = ["attributes", "tokio-runtime"] }
-actix-codec = "0.5.1"
 
 [dependencies.pyo3]
 version = "0.19.2"
